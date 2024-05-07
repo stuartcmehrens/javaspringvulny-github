@@ -17,6 +17,6 @@ jobs:
         run: ./gradlew :build
 
   semgrep:
-    uses: stuartcmehrens/ci/.github/workflows/semgrep.yaml@v1
+    uses: stuartcmehrens/ci/.github/workflows/semgrep.yaml@v1.1
     secrets:
       semgrepAppToken: ${{ secrets.SEMGREP_APP_TOKEN }}

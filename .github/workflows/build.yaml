@@ -1,14 +1,45 @@
-name:  Build
+name:  CI
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
+
+env:
+  LOCKFILE: lockfile
 
 jobs:
 
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - name: Generate Lock File
+        run: ./gradlew dependencies --write-locks
+      - name: Upload Lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: $LOCKFILE
+          path: '**/*.lockfile'
       - name: Gradle build
         run: ./gradlew :build
+
+  semgrep:
+    name: semgrep/ci
+    runs-on: ubuntu-latest
+    needs: [ 'build' ]
+    env:
+      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+    container:
+      image: semgrep/semgrep
+    if: (github.actor != 'dependabot[bot]')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Lockfile
+        uses: actions/download-artifact@v4
+        with:
+          name: $LOCKFILE
+      - run: ls -al
+      - run: semgrep ci

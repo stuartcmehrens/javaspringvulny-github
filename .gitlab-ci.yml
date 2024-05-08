@@ -1,0 +1,32 @@
+stages:
+  - build
+  - semgrep
+
+build:
+  stage: build
+  image: 
+    name: openjdk:17
+    entrypoint:
+      - "bash"
+  script:
+    - ./gradlew dependencies --write-locks
+    - ./gradlew :build
+  artifacts:
+    paths:
+      - "**/*.lockfile"
+    when: on_success
+    expire_in: "30 days"
+
+semgrep:
+  stage: semgrep
+  dependencies:
+    - "build"
+  image: semgrep/semgrep
+  script:
+    - semgrep ci
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    - if: $CI_MERGE_REQUEST_IID
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  variables:
+    SEMGREP_APP_TOKEN: $SEMGREP_APP_TOKEN

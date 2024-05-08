@@ -40,6 +40,10 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.22")
 }
 
+dependencyLocking {
+    lockAllConfigurations()
+}
+
 configurations.implementation {
     exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
 }

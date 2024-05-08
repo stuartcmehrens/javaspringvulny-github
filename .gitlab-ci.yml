@@ -4,10 +4,7 @@ stages:
 
 build:
   stage: build
-  image: 
-    name: openjdk:17
-    entrypoint:
-      - "bash"
+  image: openjdk:17
   script:
     - ./gradlew dependencies --write-locks
     - ./gradlew :build

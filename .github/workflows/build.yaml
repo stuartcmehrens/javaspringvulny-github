@@ -42,15 +42,15 @@ jobs:
         fi
     - name: Setup Java
       uses: actions/setup-java@v4
-      if: ${{ steps.check-lockfile.outputs.lockfile }} == 'true'
+      if: ${{ steps.check-lockfile.outputs.create }} == 'true'
       with:
         distribution: microsoft
         java-version: 17
     - name: Generate Lock File
-      if: ${{ steps.check-lockfile.outputs.lockfile }} == 'true'
+      if: ${{ steps.check-lockfile.outputs.create }} == 'true'
       run: ./gradlew dependencies --write-locks
     - name: Upload Lockfile
-      if: ${{ steps.check-lockfile.outputs.lockfile }} == 'true'
+      if: ${{ steps.check-lockfile.outputs.create }} == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: $LOCKFILE

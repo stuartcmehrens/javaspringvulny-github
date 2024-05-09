@@ -68,7 +68,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Download Lockfile
-      if: ${{ steps.check-lockfile.outputs.create == 'true' }}
+      if: ${{ needs.lockfile.outputs.lockfile == 'true' }}
       uses: actions/download-artifact@v4
       with:
         name: $LOCKFILE

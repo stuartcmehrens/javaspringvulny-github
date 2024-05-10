@@ -1,45 +1,41 @@
-# This config was automatically generated from your source code
-# Stacks detected: cicd:github-actions:.github/workflows,deps:java:.,tool:gradle:
 version: 2.1
+
 jobs:
-  test-java:
+  semgrep-full-scan:
     docker:
-      - image: cimg/openjdk:17.0
+      - image: semgrep/semgrep
     steps:
       - checkout
       - run:
-          name: Calculate cache key
-          command: |-
-            find . -name 'pom.xml' -o -name 'gradlew*' -o -name '*.gradle*' | \
-                    sort | xargs cat > /tmp/CIRCLECI_CACHE_KEY
-      - restore_cache:
-          key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
-      - run:
-          command: ./gradlew check
-      - store_test_results:
-          path: build/test-results
-      - save_cache:
-          key: cache-{{ checksum "/tmp/CIRCLECI_CACHE_KEY" }}
-          paths:
-            - ~/.gradle/caches
-      - store_artifacts:
-          path: build/reports
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
+          name: "Semgrep full scan"
+          command: semgrep ci
+  semgrep-diff-scan:
+    parameters:
+      default_branch:
+        type: string
+        default: main
     docker:
-      - image: cimg/base:stable
+      - image: semgrep/semgrep
     steps:
-      # Replace this with steps to deploy to users
+      - checkout
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
-      - run:
-          name: found github actions config
-          command: ':'
+          name: Semgrep diff scan
+          environment:
+            SEMGREP_BASELINE_REF: << parameters.default_branch >>
+          command: semgrep ci
+
 workflows:
-  build-and-test:
+  semgrep:
     jobs:
-      - test-java
-    # - deploy:
-    #     requires:
-    #       - test-java
+      - semgrep-full-scan:
+          filters:
+            branches:
+              only: main
+          context:
+            - semgrep
+      - semgrep-diff-scan:
+          filters:
+            branches:
+              ignore: main
+          context:
+            - semgrep

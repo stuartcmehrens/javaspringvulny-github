@@ -8,6 +8,8 @@ jobs:
       - checkout
       - run:
           name: "Semgrep full scan"
+          environment:
+            SEMGREP_REPO_URL: << pipeline.project.git_url >>
           command: semgrep ci
   semgrep-diff-scan:
     parameters:
@@ -22,6 +24,7 @@ jobs:
           name: Semgrep diff scan
           environment:
             SEMGREP_BASELINE_REF: << parameters.default_branch >>
+            SEMGREP_REPO_URL: << pipeline.project.git_url >>
           command: semgrep ci
 
 workflows:
